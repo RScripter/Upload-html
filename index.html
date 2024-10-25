@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Upload</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+        input, button {
+            width: 80%;
+            margin: 10px 0;
+            padding: 10px;
+            border: 2px solid blue;
+            background-color: black;
+            color: white;
+            font-size: 16px;
+            border-radius: 5px;
+        }
+        button {
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <input type="text" id="htmlName" placeholder="HTML Name" />
+    <input type="file" id="fileUpload" />
+    <input type="text" id="customURL" placeholder="Custom URL" />
+    <button id="uploadBtn">Upload</button>
+    <input type="text" id="resultURL" placeholder="URL Uploaded with file" readonly />
+    <button id="navigateBtn" style="display:none;"></button>
+
+    <script>
+        const uploadBtn = document.getElementById('uploadBtn');
+        const resultURL = document.getElementById('resultURL');
+        const navigateBtn = document.getElementById('navigateBtn');
+        const fileUpload = document.getElementById('fileUpload');
+
+        uploadBtn.addEventListener('click', () => {
+            const customURL = document.getElementById('customURL').value;
+            const file = fileUpload.files[0];
+            if (customURL && file) {
+                // Set the URL
+                resultURL.value = `https://www.file-upload.vercel.app/${customURL}.html`;
+                navigateBtn.innerText = "Go to " + customURL + ".html";
+                navigateBtn.style.display = 'block';
+
+                // Create downloadable HTML content
+                const htmlContent = `
+                    <!DOCTYPE html>
+                    <html lang="en">
+                    <head>
+                        <meta charset="UTF-8">
+                        <title>${file.name}</title>
+                    </head>
+                    <body>
+                        <button onclick="window.location.href='${URL.createObjectURL(file)}'">Download ${file.name}</button>
+                    </body>
+                    </html>
+                `;
+                const blob = new Blob([htmlContent], { type: 'text/html' });
+                const url = URL.createObjectURL(blob);
+
+                // Handle navigation to the custom URL
+                navigateBtn.addEventListener('click', () => {
+                    const a = document.createElement('a');
+                    a.href = `/${customURL}.html`;
+                    a.target = "_blank"; // Open in a new tab
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                });
+            } else {
+                alert('Please provide both a custom URL and a file.');
+            }
+        });
+    </script>
+
+</body>
+  </html>
+  
