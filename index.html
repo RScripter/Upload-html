@@ -3,86 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>File Upload</title>
-    <style>
-        body {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            background-color: #f4f4f4;
-        }
-        input, button {
-            width: 80%;
-            margin: 10px 0;
-            padding: 10px;
-            border: 2px solid blue;
-            background-color: black;
-            color: white;
-            font-size: 16px;
-            border-radius: 5px;
-        }
-        button {
-            cursor: pointer;
-        }
-    </style>
+    <title>File Upload Example</title>
 </head>
 <body>
-
-    <input type="text" id="htmlName" placeholder="HTML Name" />
-    <input type="file" id="fileUpload" />
-    <input type="text" id="customURL" placeholder="Custom URL" />
+    <h1>Upload Your File</h1>
+    <label for="customUrl">Custom URL:</label>
+    <input type="text" id="customUrl" placeholder="Enter custom URL">
+    <br><br>
+    
+    <input type="file" id="fileInput">
+    <br><br>
+    
     <button id="uploadBtn">Upload</button>
-    <input type="text" id="resultURL" placeholder="URL Uploaded with file" readonly />
-    <button id="navigateBtn" style="display:none;"></button>
+    <br><br>
+    
+    <label for="urlDisplay">URL:</label>
+    <input type="text" id="urlDisplay" readonly>
+    <br><br>
+
+    <div id="fileInfo" style="display:none;">
+        <label>File Name: <span id="fileName"></span></label>
+        <br>
+        <a id="downloadLink" style="display:none;">Download</a>
+    </div>
 
     <script>
         const uploadBtn = document.getElementById('uploadBtn');
-        const resultURL = document.getElementById('resultURL');
-        const navigateBtn = document.getElementById('navigateBtn');
-        const fileUpload = document.getElementById('fileUpload');
+        const fileInput = document.getElementById('fileInput');
+        const fileNameDisplay = document.getElementById('fileName');
+        const downloadLink = document.getElementById('downloadLink');
+        const urlDisplay = document.getElementById('urlDisplay');
 
         uploadBtn.addEventListener('click', () => {
-            const customURL = document.getElementById('customURL').value;
-            const file = fileUpload.files[0];
-            if (customURL && file) {
-                // Set the URL
-                resultURL.value = `https://www.file-upload.vercel.app/${customURL}.html`;
-                navigateBtn.innerText = "Go to " + customURL + ".html";
-                navigateBtn.style.display = 'block';
+            const file = fileInput.files[0];
+            const customUrl = document.getElementById('customUrl').value;
 
-                // Create downloadable HTML content
+            if (file && customUrl) {
+                const fileName = file.name;
+                fileNameDisplay.textContent = fileName;
+
+                const fileUrl = URL.createObjectURL(file);
+                downloadLink.href = fileUrl;
+                downloadLink.download = fileName;
+                downloadLink.textContent = 'Download';
+
+                // Show the file info section
+                document.getElementById('fileInfo').style.display = 'block';
+
+                // Construct the URL using the current page's URL
+                const currentUrl = window.location.href.split('/').slice(0, -1).join('/');
+                urlDisplay.value = `${currentUrl}.vercel.app/${customUrl}.html`;
+
+                // Create the HTML file content
                 const htmlContent = `
                     <!DOCTYPE html>
                     <html lang="en">
                     <head>
                         <meta charset="UTF-8">
-                        <title>${file.name}</title>
+                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                        <title>${fileName}</title>
                     </head>
                     <body>
-                        <button onclick="window.location.href='${URL.createObjectURL(file)}'">Download ${file.name}</button>
+                        <h1>${fileName}</h1>
+                        <p>Your uploaded file is available for download.</p>
+                        <a href="${fileUrl}" download="${fileName}">Download ${fileName}</a>
                     </body>
                     </html>
                 `;
-                const blob = new Blob([htmlContent], { type: 'text/html' });
-                const url = URL.createObjectURL(blob);
 
-                // Handle navigation to the custom URL
-                navigateBtn.addEventListener('click', () => {
-                    const a = document.createElement('a');
-                    a.href = `/${customURL}.html`;
-                    a.target = "_blank"; // Open in a new tab
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                });
+                // Create a blob and download the HTML file
+                const blob = new Blob([htmlContent], { type: 'text/html' });
+                const htmlDownloadLink = document.createElement('a');
+                htmlDownloadLink.href = URL.createObjectURL(blob);
+                htmlDownloadLink.download = `${customUrl}.html`;
+                htmlDownloadLink.click();
             } else {
-                alert('Please provide both a custom URL and a file.');
+                alert('Please provide a custom URL and select a file.');
             }
         });
     </script>
-
 </body>
-  </html>
-  
+</html>
